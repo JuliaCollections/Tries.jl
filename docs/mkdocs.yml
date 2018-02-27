@@ -1,6 +1,6 @@
-site_name:        DataStructures.jl
-repo_url:         https://github.com/JuliaCollections/DataStructures.jl
-site_description: Documentation for the Julia DataStructures package
+site_name:        Tries.jl
+repo_url:         https://github.com/JuliaCollections/Tries.jl
+site_description: Documentation for the Julia Tries package
 site_author:      JuliaCollections
 
 theme: readthedocs

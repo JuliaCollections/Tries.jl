@@ -1,4 +1,4 @@
-# DataStructures.jl
+# Tries.jl
 
 This package implements a variety of data structures, including
 
@@ -17,7 +17,7 @@ This package implements a variety of data structures, including
 -   Trie
 -   Linked List
 -   Sorted Dict, Sorted Multi-Dict and Sorted Set
--   DataStructures.IntSet
+-   Tries.IntSet
 
 ## Contents
 

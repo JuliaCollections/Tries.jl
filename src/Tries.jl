@@ -1,6 +1,6 @@
 __precompile__()
 
-module DataStructures
+module Tries
 
     import Base: <, <=, ==, length, isempty, start, next, done, delete!,
                  show, dump, empty!, getindex, setindex!, get, get!,

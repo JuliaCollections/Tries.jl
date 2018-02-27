@@ -1,10 +1,10 @@
 using Compat.Test
-using DataStructures
-const IntSet = DataStructures.IntSet
+using Tries
+const IntSet = Tries.IntSet
 using Primes, Compat
 using Compat.Unicode: lowercase
 
-@test isempty(detect_ambiguities(Base, Core, DataStructures))
+@test isempty(detect_ambiguities(Base, Core, Tries))
 
 tests = ["int_set",
          "deque",
@@ -31,7 +31,7 @@ if length(ARGS) > 0
     tests = ARGS
 end
 
-@testset "DataStructures" begin
+@testset "Tries" begin
 
 for t in tests
     fp = joinpath(dirname(@__FILE__), "test_$t.jl")
