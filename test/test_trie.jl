@@ -130,4 +130,49 @@
         @test collect(path(t, Vector{UInt8}("ro"))) == [t0, t1, t2]
         @test collect(path(t, Vector{UInt8}("roa"))) == [t0, t1, t2]
     end
+
+    @testset "Symbol Tuple Keys" begin
+        t = Trie{Tuple, Int, Symbol}()
+
+        ks = [
+            (:a, :m, :y),
+            (:a, :n, :n),
+            (:e, :m, :m, :a),
+            (:r, :o, :b),
+            (:r, :o, :g, :e, :r),
+        ]
+
+        vs = [56, 15, 30, 27, 52]
+
+        t[(:a, :m, :y)] = 56
+        t[(:a, :n, :n)] = 15
+        t[(:e, :m, :m, :a)] = 30
+        t[(:r, :o, :b)] = 27
+        t[(:r, :o, :g, :e, :r)] = 52
+
+        @test haskey(t, (:r, :o, :g, :e, :r))
+        @test get(t, (:r, :o, :b), nothing) == 27
+        @test Set(keys(t)) == Set(ks)
+
+        @test t[(:r, :o, :b)] == 27
+        @test Set(keys_with_prefix(t, (:r, :o))) == Set([(:r, :o, :b), (:r, :o, :g, :e, :r)])
+
+        # constructors
+        kvs = collect(zip(ks, vs))
+        @test isa(Trie(ks, vs), Trie{Tuple, Int})
+        @test isa(Trie(kvs), Trie{Tuple, Int})
+        @test isa(Trie(Dict(kvs)), Trie{Tuple, Int})
+        @test isa(Trie(ks), Trie{Tuple, Nothing})
+
+        # path iterator
+        t0 = t
+        t1 = t0.children[:r]
+        t2 = t1.children[:o]
+        t3 = t2.children[:b]
+        @test collect(path(t, (:b,))) == [t0]
+        @test collect(path(t, (:r, :o, :b))) == [t0, t1, t2, t3]
+        @test collect(path(t, (:r, :o, :b, :b))) == [t0, t1, t2, t3]
+        @test collect(path(t, (:r, :o))) == [t0, t1, t2]
+        @test collect(path(t, (:r, :o, :a))) == [t0, t1, t2]
+    end
 end # @testset Trie

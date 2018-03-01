@@ -1,4 +1,4 @@
-const TrieKey = Union{AbstractString, AbstractVector}
+const TrieKey = Union{AbstractString, AbstractVector, Tuple}
 
 mutable struct Trie{K, V, E}
     value::V
@@ -6,8 +6,12 @@ mutable struct Trie{K, V, E}
     is_key::Bool
 
     function Trie{K, V, E}() where {K, V, E}
-        self = new{K, V, E}()
-        self.children = Dict{E, Trie{K, V, E}}()
+        # We want to special case Tuple because `K` could be `Tuple{Int, Int}`
+        # while we might want to add a new key that is `Tuple{Int, Int, Int}`
+        T = K <: Tuple ? Tuple : K
+
+        self = new{T, V, E}()
+        self.children = Dict{E, Trie{T, V, E}}()
         self.is_key = false
         self
     end
@@ -40,11 +44,11 @@ Trie(kv::AbstractDict{K,V}) where {K<:TrieKey, V} = Trie{K, V, eltype(K)}(kv)
 Trie(ks::AbstractVector{K}) where {K<:TrieKey} =
     Trie{K, Nothing, eltype(K)}(ks, similar(ks, Nothing))
 
-function setindex!(t::Trie{K, V}, val::V, key::K) where {K, V}
+function setindex!(t::Trie{K, V, E}, val::V, key::K) where {K, V, E}
     node = t
     for char in key
         if !haskey(node.children, char)
-            node.children[char] = Trie(K, V)
+            node.children[char] = Trie{K, V, E}()
         end
         node = node.children[char]
     end
@@ -87,6 +91,7 @@ end
 
 keys(t::Trie{K}) where {K<:AbstractString} = keys(t, "", K[])
 keys(t::Trie{K}) where {K<:AbstractVector} = keys(t, K(), K[])
+keys(t::Trie{K}) where {K<:Tuple} = keys(t, (), Tuple[])
 
 function keys(t::Trie, prefix, found)
     if t.is_key
@@ -108,7 +113,8 @@ end
 # We special appending a value to the prefix as this will be different for
 # strings and arrays.
 append_key(prefix::AbstractString, x::Char) = string(prefix, x)
-append_key(prefix::AbstractVector{T}, x::T) where {T} = vcat(prefix, x)
+append_key(prefix::Tuple, x) = tuple(prefix..., x)
+append_key(prefix::K, x) where K = K([collect(prefix); x])
 
 # The state of a TrieIterator is a pair (t::Trie, i::Int),
 # where t is the Trie which was the output of the previous iteration
