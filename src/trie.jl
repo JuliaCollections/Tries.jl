@@ -1,5 +1,3 @@
-const TrieKey = Union{AbstractString, AbstractVector, Tuple}
-
 mutable struct Trie{K, V, E}
     value::V
     children::Dict{E, Trie{K, V, E}}
@@ -37,11 +35,11 @@ Trie() = Trie{String, Any, Char}()
 Trie(K::Type) = Trie{K, Any, eltype(K)}()
 Trie(K::Type, V::Type) = Trie{K, V, eltype(K)}()
 
-Trie(ks::AbstractVector{K}, vs::AbstractVector{V}) where {K<:TrieKey, V} =
+Trie(ks::AbstractVector{K}, vs::AbstractVector{V}) where {K, V} =
     Trie{K, V, eltype(K)}(ks, vs)
-Trie(kv::AbstractVector{Tuple{K,V}}) where {K<:TrieKey, V} = Trie{K, V, eltype(K)}(kv)
-Trie(kv::AbstractDict{K,V}) where {K<:TrieKey, V} = Trie{K, V, eltype(K)}(kv)
-Trie(ks::AbstractVector{K}) where {K<:TrieKey} =
+Trie(kv::AbstractVector{Tuple{K,V}}) where {K, V} = Trie{K, V, eltype(K)}(kv)
+Trie(kv::AbstractDict{K,V}) where {K, V} = Trie{K, V, eltype(K)}(kv)
+Trie(ks::AbstractVector{K}) where {K} =
     Trie{K, Nothing, eltype(K)}(ks, similar(ks, Nothing))
 
 function setindex!(t::Trie{K, V, E}, val::V, key::K) where {K, V, E}
@@ -90,8 +88,8 @@ function get(t::Trie, key, notfound)
 end
 
 keys(t::Trie{K}) where {K<:AbstractString} = keys(t, "", K[])
-keys(t::Trie{K}) where {K<:AbstractVector} = keys(t, K(), K[])
 keys(t::Trie{K}) where {K<:Tuple} = keys(t, (), Tuple[])
+keys(t::Trie{K}) where {K} = keys(t, K(), K[])
 
 function keys(t::Trie, prefix, found)
     if t.is_key
